@@ -26,6 +26,7 @@ load_dotenv('.env')
 app = Flask(__name__)
 line_bot_api = LineBotApi(os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
+default_openai_api = os.getenv('OPENAI_API_KEY')
 storage = None
 youtube = Youtube(step=4)
 website = Website()
@@ -67,6 +68,18 @@ def handle_text_message(event):
                 user_id: api_key
             })
             msg = TextSendMessage(text='Token 有效，註冊成功')
+
+        elif text.startswith('/免註冊'):
+            api_key = default_openai_api
+            model = OpenAIModel(api_key=api_key)
+            is_successful, _, _ = model.check_token_valid()
+            if not is_successful:
+                raise ValueError('Invalid API token')
+            model_management[user_id] = model
+            storage.save({
+                user_id: api_key
+            })
+            msg = TextSendMessage(text='Token 有效，免註冊功能成功')
 
         elif text.startswith('/指令說明'):
             msg = TextSendMessage(text="指令：\n/註冊 + API Token\n👉 API Token 請先到 https://platform.openai.com/ 註冊登入後取得\n\n/系統訊息 + Prompt\n👉 Prompt 可以命令機器人扮演某個角色，例如：請你扮演擅長做總結的人\n\n/清除\n👉 當前每一次都會紀錄最後兩筆歷史紀錄，這個指令能夠清除歷史訊息\n\n/圖像 + Prompt\n👉 會調用 DALL∙E 2 Model，以文字生成圖像\n\n語音輸入\n👉 會調用 Whisper 模型，先將語音轉換成文字，再調用 ChatGPT 以文字回覆\n\n其他文字輸入\n👉 調用 ChatGPT 以文字回覆")
