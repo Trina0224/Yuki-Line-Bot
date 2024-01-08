@@ -1,3 +1,9 @@
+# Deployment Issue and Solutions  
+1. Manually reinstall opencc and others. command: pip install xxxxx.
+2. Create a file named .replit. Put python main.py after "run" This can help to solve the "index.html" issue.
+3. A credit card is required.
+4. A special GPT Token is required for this repo. 
+
 # ChatGPT Line Bot
 
 中文 | [English](README.en.md)
